@@ -30,8 +30,16 @@ this tracks the dates and steps you give it, it does not read anything from the 
 
 ## Support the project
 
-It is free and open source. If it is useful to you, a donation is a welcome thank-you (link coming soon).
+It is free and open source. If it is useful to you, a donation is a welcome thank-you:
+
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-0070ba?logo=paypal&logoColor=white)](https://paypal.me/martin2099)
+
+Donations are optional and do not buy extra features or priority support.
 
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
+
+---
+
+A project by [abbserv.com](https://abbserv.com).
