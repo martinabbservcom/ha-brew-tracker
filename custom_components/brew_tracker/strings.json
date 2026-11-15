@@ -1,0 +1,210 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Brew Tracker for Pinter",
+        "description": "Choose which notify services get the move-on notifications (for example your phones), and the time of day to send them.",
+        "data": {
+          "notify_services": "Notify services",
+          "notify_time": "Notification time"
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Brew Tracker is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Brew Tracker options",
+        "data": {
+          "notify_services": "Notify services",
+          "notify_time": "Notification time"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_pinter": {
+      "name": "Add a Pinter",
+      "description": "Add a Pinter (brewing vessel) to the inventory.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "The name."
+        }
+      }
+    },
+    "remove_pinter": {
+      "name": "Remove a Pinter",
+      "description": "Remove an empty Pinter from the inventory.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        }
+      }
+    },
+    "save_beer": {
+      "name": "Save a beer",
+      "description": "Add a beer to the inventory, or replace one with the same name.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "The name."
+        },
+        "abv": {
+          "name": "Alcohol (ABV %)",
+          "description": "0 means not set."
+        },
+        "brew_min": {
+          "name": "Minimum brewing days",
+          "description": "0 means not set."
+        },
+        "brew_rec": {
+          "name": "Recommended brewing days",
+          "description": "Filled in when a brew is started."
+        },
+        "cond_min": {
+          "name": "Minimum conditioning days",
+          "description": "0 means not set."
+        },
+        "cond_rec": {
+          "name": "Recommended conditioning days",
+          "description": "Filled in when a brew is started."
+        },
+        "crash": {
+          "name": "Cold Crashing days",
+          "description": "0 skips Cold Crashing."
+        },
+        "hopper": {
+          "name": "Uses a hopper",
+          "description": "The hopper goes in when the dock comes off."
+        }
+      }
+    },
+    "delete_beer": {
+      "name": "Delete a beer",
+      "description": "Remove a beer from the inventory. Brews already started are not affected.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "The name."
+        }
+      }
+    },
+    "start_brew": {
+      "name": "Start a brew",
+      "description": "Start a brew of an inventory beer in an empty Pinter. Days default from the beer and can be adjusted.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        },
+        "beer": {
+          "name": "Beer",
+          "description": "A beer from the inventory."
+        },
+        "brew_days": {
+          "name": "Brewing days",
+          "description": "1 to 14."
+        },
+        "crash_days": {
+          "name": "Cold Crashing days",
+          "description": "0 to 14. 0 skips it."
+        },
+        "cond_days": {
+          "name": "Conditioning days",
+          "description": "1 to 30."
+        },
+        "abv": {
+          "name": "Alcohol (ABV %)",
+          "description": "0 means not set."
+        },
+        "hopper": {
+          "name": "Uses a hopper",
+          "description": "The hopper goes in when the dock comes off."
+        },
+        "started": {
+          "name": "Started at",
+          "description": "For a brew that started earlier. Defaults to now."
+        }
+      }
+    },
+    "check_brew": {
+      "name": "Check a brew",
+      "description": "Check whether a brew would clash with the Cold Crashing fridge or be shorter than the beer's minimum.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        },
+        "beer": {
+          "name": "Beer",
+          "description": "A beer from the inventory."
+        },
+        "brew_days": {
+          "name": "Brewing days",
+          "description": "1 to 14."
+        },
+        "crash_days": {
+          "name": "Cold Crashing days",
+          "description": "0 to 14. 0 skips it."
+        },
+        "cond_days": {
+          "name": "Conditioning days",
+          "description": "1 to 30."
+        },
+        "started": {
+          "name": "Started at",
+          "description": "For a brew that started earlier. Defaults to now."
+        }
+      }
+    },
+    "move_on": {
+      "name": "Move on",
+      "description": "Record that a Pinter has been moved on to its next step.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        },
+        "from_step": {
+          "name": "Only if on this step",
+          "description": "A stale tap on an old notification then does nothing."
+        }
+      }
+    },
+    "go_back": {
+      "name": "Go back",
+      "description": "Undo the last move and put back the earlier step's start time.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        }
+      }
+    },
+    "empty": {
+      "name": "Empty",
+      "description": "Mark a Pinter as empty.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        }
+      }
+    },
+    "send_test_notification": {
+      "name": "Send a test notification",
+      "description": "Send the move-on notification for a Pinter, marked TEST, to the chosen notify services.",
+      "fields": {
+        "pinter": {
+          "name": "Pinter",
+          "description": "The Pinter's name."
+        }
+      }
+    }
+  }
+}

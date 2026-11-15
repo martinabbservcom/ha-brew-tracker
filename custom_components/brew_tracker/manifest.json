@@ -1,12 +1,18 @@
 {
-  "domain": "brew_tracker",
-  "name": "Brew Tracker for Pinter",
-  "codeowners": ["@martinabbservcom"],
+  "after_dependencies": [
+    "mobile_app"
+  ],
+  "codeowners": [
+    "@martinabbservcom"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/martinabbservcom/ha-brew-tracker",
+  "domain": "brew_tracker",
   "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/martinabbservcom/ha-brew-tracker/issues",
+  "name": "Brew Tracker for Pinter",
   "requirements": [],
+  "single_config_entry": true,
   "version": "0.0.1"
 }

@@ -1,0 +1,169 @@
+add_pinter:
+  fields:
+    name:
+      required: true
+      example: Bluey
+      selector:
+        text:
+remove_pinter:
+  fields:
+    pinter:
+      required: true
+      example: Bluey
+      selector:
+        text:
+save_beer:
+  fields:
+    name:
+      required: true
+      example: London Pride
+      selector:
+        text:
+    abv:
+      selector:
+        number:
+          min: 0
+          max: 20
+          step: 0.1
+          unit_of_measurement: "%"
+    brew_min:
+      selector:
+        number:
+          min: 0
+          max: 14
+          unit_of_measurement: days
+    brew_rec:
+      selector:
+        number:
+          min: 0
+          max: 14
+          unit_of_measurement: days
+    cond_min:
+      selector:
+        number:
+          min: 0
+          max: 30
+          unit_of_measurement: days
+    cond_rec:
+      selector:
+        number:
+          min: 0
+          max: 30
+          unit_of_measurement: days
+    crash:
+      selector:
+        number:
+          min: 0
+          max: 14
+          unit_of_measurement: days
+    hopper:
+      selector:
+        boolean:
+delete_beer:
+  fields:
+    name:
+      required: true
+      selector:
+        text:
+start_brew:
+  fields:
+    pinter:
+      required: true
+      selector:
+        text:
+    beer:
+      required: true
+      selector:
+        text:
+    brew_days:
+      selector:
+        number:
+          min: 1
+          max: 14
+          unit_of_measurement: days
+    crash_days:
+      selector:
+        number:
+          min: 0
+          max: 14
+          unit_of_measurement: days
+    cond_days:
+      selector:
+        number:
+          min: 1
+          max: 30
+          unit_of_measurement: days
+    abv:
+      selector:
+        number:
+          min: 0
+          max: 20
+          step: 0.1
+          unit_of_measurement: "%"
+    hopper:
+      selector:
+        boolean:
+    started:
+      selector:
+        datetime:
+check_brew:
+  fields:
+    pinter:
+      selector:
+        text:
+    beer:
+      required: true
+      selector:
+        text:
+    brew_days:
+      selector:
+        number:
+          min: 1
+          max: 14
+          unit_of_measurement: days
+    crash_days:
+      selector:
+        number:
+          min: 0
+          max: 14
+          unit_of_measurement: days
+    cond_days:
+      selector:
+        number:
+          min: 1
+          max: 30
+          unit_of_measurement: days
+    started:
+      selector:
+        datetime:
+move_on:
+  fields:
+    pinter:
+      required: true
+      selector:
+        text:
+    from_step:
+      selector:
+        select:
+          options:
+            - Brewing
+            - Cold Crashing
+            - Conditioning
+go_back:
+  fields:
+    pinter:
+      required: true
+      selector:
+        text:
+empty:
+  fields:
+    pinter:
+      required: true
+      selector:
+        text:
+send_test_notification:
+  fields:
+    pinter:
+      required: true
+      selector:
+        text:
