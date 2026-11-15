@@ -1,3 +1,5 @@
+<img src="assets/logo.png" alt="Brew Tracker for Pinter logo" width="96" align="right">
+
 # Brew Tracker for Pinter
 
 > **Status: early development. Not ready to install yet.**
