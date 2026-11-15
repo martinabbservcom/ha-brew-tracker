@@ -10,7 +10,7 @@ collect_ignore = []
 try:
     import pytest_homeassistant_custom_component.plugins  # noqa: F401  (needs a Unix-only module)
 except ImportError:
-    collect_ignore.append("test_integration.py")
+    collect_ignore.extend(["test_integration.py", "test_integration_fridge.py", "test_full_cycle.py"])
 else:
 
     @pytest.fixture(autouse=True)
