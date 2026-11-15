@@ -2,7 +2,7 @@
 
 # Brew Tracker for Pinter
 
-> **Status: early development. Not ready to install yet.**
+> **Status: early release (0.0.x).** It runs a real household's brews, but expect rough edges. Please report problems in the issues.
 
 A Home Assistant integration for keeping track of home brews in [Pinter](https://pinter.co.uk) brewing vessels:
 which Pinter has which beer in it, what step it is on, which day and date to move it on, and a notification to your
@@ -12,7 +12,7 @@ phones when it is time.
 their name; no Pinter logos, text or images are used here. The Pinter itself has no connection to Home Assistant, so
 this tracks the dates and steps you give it, it does not read anything from the vessel.
 
-## What it will do
+## What it does
 
 - Any number of Pinters, each with a name, and a beer inventory you fill in (ABV, minimum and recommended brewing and
   conditioning days, Cold Crashing days, whether it uses a hopper).
@@ -27,10 +27,12 @@ this tracks the dates and steps you give it, it does not read anything from the 
 - Go back (undo) a move, with a confirmation.
 - A card that installs with the integration.
 
-## Install (when released)
+## Install
 
-1. In HACS, add this repository as a custom repository (category: Integration) and install it.
-2. Restart Home Assistant, then add the integration under Settings, Devices and services.
+1. In HACS, open the menu (three dots), choose Custom repositories, add `https://github.com/martinabbservcom/ha-brew-tracker` with the category Integration, then install it.
+2. Restart Home Assistant, then add the integration under Settings, Devices and services (search for Brew Tracker for Pinter).
+3. Choose which notify services to use, the notification time and your fridge room. All of these can be changed later with the Configure button.
+4. Add the card to a dashboard (see below).
 
 ## The dashboard card
 
