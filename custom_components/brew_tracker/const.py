@@ -9,6 +9,9 @@ CONF_FRIDGE_CAPACITY = "fridge_capacity"          # how many Pinters can be Cold
 CONF_CONDITIONING_IN_FRIDGE = "conditioning_in_fridge"   # Conditioning also takes fridge room
 DEFAULT_FRIDGE_CAPACITY = 1
 
+VERSION = "0.0.1"          # keep in step with manifest.json
+CARD_URL = f"/{DOMAIN}/brew-tracker-card.js"
+
 STORAGE_VERSION = 1
 
 SIGNAL_UPDATED = f"{DOMAIN}_updated"

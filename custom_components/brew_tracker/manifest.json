@@ -2,6 +2,8 @@
   "domain": "brew_tracker",
   "name": "Brew Tracker for Pinter",
   "after_dependencies": [
+    "frontend",
+    "http",
     "mobile_app"
   ],
   "codeowners": [

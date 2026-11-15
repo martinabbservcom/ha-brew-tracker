@@ -36,3 +36,16 @@ jobs:
           python-version: "3.13"
       - run: pip install pytest pytest-homeassistant-custom-component
       - run: pytest tests -q
+
+  card:
+    name: Card tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --no-audit --no-fund
+        working-directory: tests/js
+      - run: node --test
+        working-directory: tests/js

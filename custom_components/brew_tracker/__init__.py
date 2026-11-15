@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import voluptuous as vol
 
@@ -16,7 +17,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
 from . import logic
-from .const import ACTION_PREFIX, DOMAIN, EVENT_MOBILE_ACTION, SIGNAL_UPDATED
+from .const import ACTION_PREFIX, CARD_URL, DOMAIN, EVENT_MOBILE_ACTION, SIGNAL_UPDATED, VERSION
 from .manager import BrewManager
 
 _LOGGER = logging.getLogger(__name__)
@@ -42,8 +43,21 @@ def _manager(hass: HomeAssistant) -> BrewManager:
     return entries[0].runtime_data
 
 
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Serve the dashboard card and load it on every page, so users add no resource by hand."""
+    if getattr(hass, "http", None) is None or "frontend" not in hass.config.components:
+        return                       # no web front end (for example in tests)
+    from homeassistant.components.frontend import add_extra_js_url
+    from homeassistant.components.http import StaticPathConfig
+
+    path = Path(__file__).parent / "www" / "brew-tracker-card.js"
+    await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), False)])
+    add_extra_js_url(hass, f"{CARD_URL}?v={VERSION}")
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the services once; they act on the single configured entry."""
+    """Register the services and the card once; the services act on the single configured entry."""
+    await _async_register_card(hass)
 
     async def add_pinter(call: ServiceCall) -> None:
         await _manager(hass).async_add_pinter(call.data["name"])
