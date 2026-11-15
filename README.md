@@ -2,7 +2,7 @@
 
 # Brew Tracker for Pinter
 
-> **Status: early release (0.0.x).** It runs a real household's brews, but expect rough edges. Please report problems in the issues.
+> **Status: early release (0.1.x).** It runs a real household's brews, but expect rough edges. Please report problems in the issues.
 
 A Home Assistant integration for keeping track of home brews in [Pinter](https://pinter.co.uk) brewing vessels:
 which Pinter has which beer in it, what step it is on, which day and date to move it on, and a notification to your
