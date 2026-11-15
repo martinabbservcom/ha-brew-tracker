@@ -30,6 +30,18 @@ this tracks the dates and steps you give it, it does not read anything from the 
 1. In HACS, add this repository as a custom repository (category: Integration) and install it.
 2. Restart Home Assistant, then add the integration under Settings, Devices and services.
 
+## The dashboard card
+
+The card is added for you when the integration loads. Add it to any dashboard (Edit dashboard, Add card, Manual):
+
+```yaml
+type: custom:brew-tracker-card
+```
+
+It has four tabs: Brewing (what to do next for each Pinter, Moved it on, Go back), Start brew, Pinters (add, remove, empty)
+and Beers (the inventory). To open it on a particular tab, add `tab: brewing`, `tab: start`, `tab: pinters` or `tab: beers`.
+If the card shows "custom element doesn't exist" after installing, refresh the browser page once.
+
 ## Support the project
 
 It is free and open source. If it is useful to you, a donation is a welcome thank-you:
