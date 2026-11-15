@@ -15,7 +15,7 @@ from .manager import BrewManager
 
 
 def hub_device(entry_id: str) -> DeviceInfo:
-    return DeviceInfo(identifiers={(DOMAIN, "hub")}, name="Brew Tracker", manufacturer="Brew Tracker for Pinter (unofficial)")
+    return DeviceInfo(identifiers={(DOMAIN, "hub")}, name="Brew Tracker", manufacturer="abbserv.com")
 
 
 async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities: AddConfigEntryEntitiesCallback) -> None:

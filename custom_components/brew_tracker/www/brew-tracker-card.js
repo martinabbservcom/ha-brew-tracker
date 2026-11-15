@@ -124,7 +124,7 @@ class BrewTrackerCard extends HTMLElement {
     const body = { brewing: this._brewing, start: this._start, pinters: this._pinters, beers: this._beers }[this._tab].call(this, d);
     const msg = this._msg ? `<div class="msg ${this._msg.bad ? "bad" : ""}">${esc(this._msg.text)}</div>` : "";
     this.shadowRoot.innerHTML = `<style>${STYLE}</style><ha-card><nav>${nav}</nav>${body}${msg}
-      <div class="unofficial">Brew Tracker for Pinter. Unofficial: not made by or affiliated with Pinter.</div></ha-card>`;
+      <div class="unofficial">Brew Tracker for Pinter. Unofficial: not made by or affiliated with Pinter. A project by <a href="https://abbserv.com" target="_blank" rel="noopener">abbserv.com</a>.</div></ha-card>`;
     this._wire();
   }
 
