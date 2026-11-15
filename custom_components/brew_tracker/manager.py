@@ -14,8 +14,9 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from . import logic
-from .const import (ACTION_PREFIX, CONF_NOTIFY, CONF_NOTIFY_TIME, DEFAULT_NOTIFY_TIME, DOMAIN, EMPTY,
-                    SIGNAL_NEW_PINTER, SIGNAL_UPDATED, STORAGE_VERSION)
+from .const import (ACTION_PREFIX, CONF_CONDITIONING_IN_FRIDGE, CONF_FRIDGE_CAPACITY, CONF_NOTIFY, CONF_NOTIFY_TIME,
+                    DEFAULT_FRIDGE_CAPACITY, DEFAULT_NOTIFY_TIME, DOMAIN, EMPTY, SIGNAL_NEW_PINTER, SIGNAL_UPDATED,
+                    STORAGE_VERSION)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -77,6 +78,18 @@ class BrewManager:
     def notify_time(self) -> time:
         text = self.entry.options.get(CONF_NOTIFY_TIME, self.entry.data.get(CONF_NOTIFY_TIME, DEFAULT_NOTIFY_TIME))
         return time.fromisoformat(text)
+
+    def _setting(self, key: str, default):
+        return self.entry.options.get(key, self.entry.data.get(key, default))
+
+    @property
+    def fridge_capacity(self) -> int:
+        """How many Pinters can be Cold Crashed at the same time. 0 means no fridge: Cold Crashing is skipped."""
+        return int(self._setting(CONF_FRIDGE_CAPACITY, DEFAULT_FRIDGE_CAPACITY))
+
+    @property
+    def conditioning_in_fridge(self) -> bool:
+        return bool(self._setting(CONF_CONDITIONING_IN_FRIDGE, False))
 
     # ------------------------------------------------------------------------------------------ lookups
     def pinter_id(self, name: str) -> str:
@@ -142,8 +155,11 @@ class BrewManager:
                        started: datetime | None = None) -> dict[str, Any]:
         """What the Start a brew form shows: fridge clash, and days below the beer's minimum."""
         when = (started or dt_util.now()).date()
-        state, text = logic.check_new_brew(self._fridge_windows(), when, brew_days, crash_days,
-                                           exclude_pinter=pinter)
+        if self.fridge_capacity <= 0:
+            crash_days = 0
+        state, text = logic.check_new_brew(self._fridge_windows(), when, brew_days, crash_days, exclude_pinter=pinter,
+                                           capacity=self.fridge_capacity, cond_days=cond_days,
+                                           conditioning_in_fridge=self.conditioning_in_fridge)
         warnings = logic.minimum_warnings(beer, brew_days, cond_days)
         if warnings and state != "Clash":
             state = "Below minimum"
@@ -159,6 +175,8 @@ class BrewManager:
         beer = self.beer(beer_name)
         brew_days = beer.default_brew_days() if brew_days is None else brew_days
         crash_days = beer.crash if crash_days is None else crash_days
+        if self.fridge_capacity <= 0:
+            crash_days = 0                     # no fridge to Cold Crash in
         cond_days = beer.default_cond_days() if cond_days is None else cond_days
         check = self.check_new_brew(self.pinters[pid], beer, brew_days=brew_days, crash_days=crash_days,
                                     cond_days=cond_days, started=started)
@@ -203,10 +221,11 @@ class BrewManager:
 
     # ------------------------------------------------------------------------------------------ the fridge
     def _fridge_windows(self) -> list[logic.FridgeWindow]:
-        return logic.fridge_windows({pid: (self.pinters[pid], brew) for pid, brew in self.brews.items()})
+        return logic.fridge_windows({pid: (self.pinters[pid], brew) for pid, brew in self.brews.items()},
+                                    self.conditioning_in_fridge)
 
     def fridge(self) -> dict[str, Any]:
-        return logic.fridge_check(self._fridge_windows())
+        return logic.fridge_check(self._fridge_windows(), self.fridge_capacity)
 
     # ------------------------------------------------------------------------------------------ notifications
     async def async_send(self, pid: str, *, test: bool = False) -> None:
@@ -215,7 +234,10 @@ class BrewManager:
         if brew is None:
             return
         name = self.pinters[pid]
-        occupant = self.fridge()["occupant"]
+        check = self.fridge()
+        # only worth a heads-up when the fridge is full, so the Pinter being moved in has nowhere to go
+        full = self.fridge_capacity > 0 and len(check["occupants"]) >= self.fridge_capacity
+        occupant = check["occupants"][0] if full else None
         title, message = logic.move_on_message(name, brew, occupant)
         if test:
             title = "TEST - " + title
@@ -278,6 +300,7 @@ class BrewManager:
         check = self.fridge()
         occupant = check["occupant"]
         return {"state": check["state"], "attributes": {
+            "capacity": self.fridge_capacity, "conditioning_in_fridge": self.conditioning_in_fridge,
             "conflicts": [c["text"] for c in check["conflicts"]],
             "handovers": check["handovers"],
             "occupant": None if occupant is None else {"pinter": occupant.pinter, "beer": occupant.beer, "until": occupant.end.isoformat()},

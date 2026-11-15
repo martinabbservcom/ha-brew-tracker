@@ -3,10 +3,16 @@
     "step": {
       "user": {
         "title": "Brew Tracker for Pinter",
-        "description": "Choose which notify services get the move-on notifications (for example your phones), and the time of day to send them.",
+        "description": "Choose which notify services get the move-on notifications (for example your phones), the time of day to send them, and how much fridge room you have. Everyone's setup is different.",
         "data": {
           "notify_services": "Notify services",
-          "notify_time": "Notification time"
+          "notify_time": "Notification time",
+          "fridge_capacity": "Pinters you can Cold Crash at once (0 = none)",
+          "conditioning_in_fridge": "Conditioning also needs fridge room"
+        },
+        "data_description": {
+          "fridge_capacity": "Count the fridges (or spare shelves) you can use for Cold Crashing. 0 means you cannot Cold Crash, so that step is skipped.",
+          "conditioning_in_fridge": "Turn on if Conditioning takes room in the same fridge, so it counts against the capacity above."
         }
       }
     },
@@ -20,7 +26,13 @@
         "title": "Brew Tracker options",
         "data": {
           "notify_services": "Notify services",
-          "notify_time": "Notification time"
+          "notify_time": "Notification time",
+          "fridge_capacity": "Pinters you can Cold Crash at once (0 = none)",
+          "conditioning_in_fridge": "Conditioning also needs fridge room"
+        },
+        "data_description": {
+          "fridge_capacity": "Count the fridges (or spare shelves) you can use for Cold Crashing. 0 means you cannot Cold Crash, so that step is skipped.",
+          "conditioning_in_fridge": "Turn on if Conditioning takes room in the same fridge, so it counts against the capacity above."
         }
       }
     }

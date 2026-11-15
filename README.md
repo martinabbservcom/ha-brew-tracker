@@ -19,7 +19,9 @@ this tracks the dates and steps you give it, it does not read anything from the 
   hopper goes in if the beer has one, back in the fridge in its tapping position), then Ready to drink.
 - Notifications to the phones or notify services you choose, on the day each move is due, saying which Pinter, which beer and
   the step to move it on to, with a "Done, I moved it" button.
-- One Cold Crashing fridge: a warning if two beers' Cold Crash dates overlap.
+- Fridge room is a setting, because everyone's setup is different: how many Pinters you can Cold Crash at once (0 means you
+  have no fridge for it, so Cold Crashing is skipped), and whether Conditioning also takes room in the same fridge. You get a
+  warning if the dates would need more room than you have.
 - Go back (undo) a move, with a confirmation.
 - A card that installs with the integration.
 

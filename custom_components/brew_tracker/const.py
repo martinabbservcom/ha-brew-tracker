@@ -5,6 +5,10 @@ CONF_NOTIFY = "notify_services"      # names under the notify domain, for exampl
 CONF_NOTIFY_TIME = "notify_time"     # time of day for the move-on notification, "09:00:00"
 DEFAULT_NOTIFY_TIME = "09:00:00"
 
+CONF_FRIDGE_CAPACITY = "fridge_capacity"          # how many Pinters can be Cold Crashed at once (0 = no fridge)
+CONF_CONDITIONING_IN_FRIDGE = "conditioning_in_fridge"   # Conditioning also takes fridge room
+DEFAULT_FRIDGE_CAPACITY = 1
+
 STORAGE_VERSION = 1
 
 SIGNAL_UPDATED = f"{DOMAIN}_updated"

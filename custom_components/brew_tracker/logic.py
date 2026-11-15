@@ -208,55 +208,95 @@ def hopper_note(brew: Brew) -> str:
     return ""
 
 
-# ----------------------------------------------------------------------------- the one Cold Crashing fridge
+# ----------------------------------------------------------------------------- fridge room for Cold Crashing
+# Everyone's setup differs, so the room is a setting: `capacity` is how many Pinters can be in the fridge(s) at once
+# (0 = no fridge, so Cold Crashing is not possible), and `conditioning_in_fridge` says whether Conditioning also takes
+# that room. A Pinter's window runs from the day it goes in to the day it comes out. One coming out and another going
+# in on the same day is fine.
 
-def fridge_windows(brews: dict[str, tuple[str, Brew]]) -> list[FridgeWindow]:
-    """Cold Crash windows of brews that still need the fridge. brews maps a Pinter id to (Pinter name, brew)."""
+def fridge_windows(brews: dict[str, tuple[str, Brew]], conditioning_in_fridge: bool = False) -> list[FridgeWindow]:
+    """Windows of brews that still need the fridge. brews maps a Pinter id to (Pinter name, brew)."""
     out = []
-    for pinter, (name, brew) in brews.items():
-        if brew.step not in (BREWING, COLD_CRASHING) or brew.crash_days <= 0:
+    for _pinter, (name, brew) in brews.items():
+        wanted = {COLD_CRASHING} | ({CONDITIONING} if conditioning_in_fridge else set())
+        rows = [r for r in plan(brew)["rows"] if r["step"] in wanted and r["status"] in ("now", "next") and r["days"] > 0]
+        if not rows:
             continue
-        start = brew.step_start.date()
-        if brew.step == BREWING:
-            start += timedelta(days=brew.brew_days)
-        out.append(FridgeWindow(name, brew.beer, start, start + timedelta(days=brew.crash_days), brew.step == COLD_CRASHING))
+        out.append(FridgeWindow(name, brew.beer, rows[0]["from"], rows[-1]["to"],
+                                brew.step in wanted))
     return out
 
 
-def fridge_check(windows: list[FridgeWindow]) -> dict:
-    """Overlaps are clashes; one coming out and another going in on the same day is fine (a handover)."""
-    conflicts, handovers = [], []
-    for i, a in enumerate(windows):
-        for b in windows[i + 1:]:
-            if a.start < b.end and b.start < a.end:
-                lo, hi = max(a.start, b.start), min(a.end, b.end)
-                conflicts.append({
-                    "pinters": [a.pinter, b.pinter],
-                    "text": f"{a.pinter} ({a.beer}) and {b.pinter} ({b.beer}) both need the fridge for Cold Crashing "
-                            f"between {fmt_short(lo)} and {fmt_short(hi)}.",
-                })
-            elif a.end == b.start:
-                handovers.append(f"{a.pinter} comes out of the fridge and {b.pinter} goes in on {fmt_short(a.end)} (same day, so no clash).")
-            elif b.end == a.start:
-                handovers.append(f"{b.pinter} comes out of the fridge and {a.pinter} goes in on {fmt_short(b.end)} (same day, so no clash).")
-    occupant = next((w for w in windows if w.in_fridge), None)
-    state = "Clash" if conflicts else ("In use" if occupant else "Free")
-    return {"state": state, "conflicts": conflicts, "handovers": handovers, "occupant": occupant}
+def _overlaps(windows: list[FridgeWindow], capacity: int) -> list[dict]:
+    """Stretches of days when more Pinters need the fridge than it has room for."""
+    days = sorted({w.start for w in windows} | {w.end for w in windows})
+    stretches: list[dict] = []
+    for d0, d1 in zip(days, days[1:]):
+        active = [w for w in windows if w.start < d1 and w.end > d0]
+        if len(active) > capacity:
+            names = tuple(w.pinter for w in active)
+            if stretches and stretches[-1]["names"] == names and stretches[-1]["end"] == d0:
+                stretches[-1]["end"] = d1
+            else:
+                stretches.append({"names": names, "active": active, "start": d0, "end": d1})
+    return stretches
+
+
+def fridge_check(windows: list[FridgeWindow], capacity: int = 1) -> dict:
+    """State is No fridge, Clash, In use or Free. With room for one, two Pinters at once is a clash."""
+    if capacity <= 0:
+        return {"state": "No fridge", "conflicts": [], "handovers": [], "occupant": None, "occupants": []}
+    conflicts = []
+    for s in _overlaps(windows, capacity):
+        if capacity == 1 and len(s["active"]) == 2:
+            a, b = s["active"]
+            text = (f"{a.pinter} ({a.beer}) and {b.pinter} ({b.beer}) both need the fridge for Cold Crashing "
+                    f"between {fmt_short(s['start'])} and {fmt_short(s['end'])}.")
+        else:
+            who = ", ".join(f"{w.pinter} ({w.beer})" for w in s["active"])
+            text = (f"{who} all need the fridge between {fmt_short(s['start'])} and {fmt_short(s['end'])}, "
+                    f"but there is only room for {capacity}.")
+        conflicts.append({"pinters": list(s["names"]), "text": text})
+    handovers = []
+    if capacity == 1:
+        for i, a in enumerate(windows):
+            for b in windows[i + 1:]:
+                if a.end == b.start:
+                    handovers.append(f"{a.pinter} comes out of the fridge and {b.pinter} goes in on {fmt_short(a.end)} (same day, so no clash).")
+                elif b.end == a.start:
+                    handovers.append(f"{b.pinter} comes out of the fridge and {a.pinter} goes in on {fmt_short(b.end)} (same day, so no clash).")
+    inside = [w for w in windows if w.in_fridge]
+    state = "Clash" if conflicts else ("In use" if inside else "Free")
+    return {"state": state, "conflicts": conflicts, "handovers": handovers,
+            "occupant": inside[0] if inside else None, "occupants": inside}
 
 
 def check_new_brew(windows: list[FridgeWindow], started: date, brew_days: int, crash_days: int,
-                   exclude_pinter: str | None = None) -> tuple[str, str]:
-    """Would a brew starting on `started` clash with the fridge? Returns (state, text) for the Start a brew form."""
-    if crash_days <= 0:
-        return "No Cold Crashing", "No Cold Crashing, so this beer will not need the fridge."
+                   exclude_pinter: str | None = None, *, capacity: int = 1, cond_days: int = 0,
+                   conditioning_in_fridge: bool = False) -> tuple[str, str]:
+    """Would a brew starting on `started` fit the fridge? Returns (state, text) for the Start a brew form."""
+    if capacity <= 0:
+        return "No fridge", "There is no fridge set up for Cold Crashing, so this beer skips it."
     start = started + timedelta(days=brew_days)
-    end = start + timedelta(days=crash_days)
+    mid = start + timedelta(days=max(crash_days, 0))
+    end = mid + timedelta(days=cond_days if conditioning_in_fridge else 0)
+    if crash_days <= 0 and not conditioning_in_fridge:
+        return "No Cold Crashing", "No Cold Crashing, so this beer will not need the fridge."
+    if crash_days <= 0:
+        start = mid
     mine = f"{fmt_short(start)} to {fmt_short(end)}"
-    for w in windows:
-        if w.pinter != exclude_pinter and start < w.end and w.start < end:
+    others = [w for w in windows if w.pinter != exclude_pinter]
+    me = FridgeWindow("this beer", "new", start, end, False)
+    clashes = [s for s in _overlaps(others + [me], capacity) if any(w is me for w in s["active"])]
+    if clashes:
+        if capacity == 1:
+            w = next(w for w in clashes[0]["active"] if w is not me)
             return "Clash", (f"FRIDGE CLASH: this beer would be Cold Crashing {mine}, but {w.pinter} ({w.beer}) has the "
                              f"fridge {fmt_short(w.start)} to {fmt_short(w.end)}. Change the days or start it later.")
-    return "Free", f"The fridge is free for this beer's Cold Crash ({mine})."
+        who = ", ".join(f"{w.pinter} ({w.beer})" for w in clashes[0]["active"] if w is not me)
+        return "Clash", (f"FRIDGE FULL: this beer would need the fridge {mine}, but {who} already use the {capacity} places "
+                         f"you have then. Change the days or start it later.")
+    return "Free", f"The fridge has room for this beer's Cold Crash ({mine})."
 
 
 def minimum_warnings(beer: Beer, brew_days: int, cond_days: int) -> list[str]:
@@ -280,7 +320,7 @@ def move_on_message(pinter_name: str, brew: Brew, fridge_occupant: FridgeWindow 
         return f"{pinter_name} is ready", f"{pinter_name}: {brew.beer}{abv} has finished conditioning. It is ready to drink!"
     target = next_step(brew)
     message = f"{pinter_name}: {_VERB.get(brew.step, '')} {brew.beer}. Move it on to {target}. {how_to_move(brew, target)}"
-    if target == COLD_CRASHING and fridge_occupant is not None and fridge_occupant.pinter != pinter_name:
+    if target == COLD_CRASHING and fridge_occupant is not None and fridge_occupant.pinter != pinter_name:  # None unless the fridge is full
         message += (f" Heads up: the cold crash fridge is in use by {fridge_occupant.pinter} ({fridge_occupant.beer}) "
                     f"until {fmt_short(fridge_occupant.end)}.")
     return f"{pinter_name}: time to move on", message

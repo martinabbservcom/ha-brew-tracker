@@ -73,7 +73,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         beer = manager.beer(d["beer"])
         return manager.check_new_brew(
             d.get("pinter"), beer, brew_days=d.get("brew_days", beer.default_brew_days()),
-            crash_days=d.get("crash_days", beer.crash), cond_days=d.get("cond_days", beer.default_cond_days()),
+            crash_days=d.get("crash_days", beer.crash if manager.fridge_capacity > 0 else 0), cond_days=d.get("cond_days", beer.default_cond_days()),
             started=d.get("started"))
 
     async def move_on(call: ServiceCall) -> None:
